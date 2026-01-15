@@ -7,22 +7,39 @@ import { Product } from '../models/product.model';
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = '/api/products';  // Usar proxy, no localhost:8080
+  private apiUrl = 'http://localhost:8081/api/products';
 
   constructor(private http: HttpClient) { }
 
-  getProducts(categoryId?: number): Observable<Product[]> {
-    if (categoryId && categoryId > 0) {
-      return this.http.get<Product[]>(`${this.apiUrl}?categoryId=${categoryId}`);
-    }
+  getAllProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl);
   }
 
-  getProduct(id: number): Observable<Product> {
+  getProductById(id: number): Observable<Product> {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
   }
 
   getProductsByCategory(categoryId: number): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/category/${categoryId}`);
+  }
+
+  createProduct(product: Product): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, product);
+  }
+
+  updateProduct(id: number, product: Product): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${id}`, product);
+  }
+
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  searchProducts(keyword: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/search?keyword=${keyword}`);
+  }
+
+  getLowStockProducts(threshold: number = 10): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/low-stock?threshold=${threshold}`);
   }
 }

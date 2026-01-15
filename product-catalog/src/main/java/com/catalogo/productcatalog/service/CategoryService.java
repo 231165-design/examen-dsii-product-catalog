@@ -7,7 +7,9 @@ import java.util.Optional;
 public interface CategoryService {
     List<Category> getAllCategories();
     Optional<Category> getCategoryById(Long id);
+    Category saveCategory(Category category);
+    void deleteCategory(Long id);
+    List<Category> searchCategories(String keyword); // <-- ESTE MÉTODO FALTA
     Category createCategory(Category category);
     Category updateCategory(Long id, Category category);
-    void deleteCategory(Long id);
 }

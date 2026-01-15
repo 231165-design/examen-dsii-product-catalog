@@ -26,6 +26,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
     
     @Override
+    public Category saveCategory(Category category) {
+        return categoryRepository.save(category);
+    }
+    
+    @Override
     public Category createCategory(Category category) {
         return categoryRepository.save(category);
     }
@@ -42,5 +47,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
+    }
+    
+    @Override
+    public List<Category> searchCategories(String keyword) {
+        // IMPLEMENTAR búsqueda
+        return categoryRepository.findByNameContainingIgnoreCase(keyword);
     }
 }

@@ -22,12 +22,10 @@ public class ProductController {
             @RequestParam(required = false) Long categoryId) {
         
         if (categoryId != null) {
-            // Filtrar por categoría
             List<Product> products = productService.getProductsByCategory(categoryId);
             return ResponseEntity.ok(products);
         }
         
-        // Devolver todos los productos
         List<Product> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
@@ -47,6 +45,11 @@ public class ProductController {
     
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        // Validar que la categoría existe
+        if (product.getCategory() == null || product.getCategory().getId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        
         Product savedProduct = productService.saveProduct(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
     }
@@ -58,7 +61,12 @@ public class ProductController {
         
         return productService.getProductById(id)
                 .map(existingProduct -> {
+                    // Mantener el ID y actualizar otros campos
                     productDetails.setId(id);
+                    // Mantener la categoría si no se proporciona una nueva
+                    if (productDetails.getCategory() == null) {
+                        productDetails.setCategory(existingProduct.getCategory());
+                    }
                     Product updatedProduct = productService.saveProduct(productDetails);
                     return ResponseEntity.ok(updatedProduct);
                 })
@@ -78,6 +86,14 @@ public class ProductController {
     @GetMapping("/search")
     public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
         List<Product> products = productService.searchProducts(keyword);
+        return ResponseEntity.ok(products);
+    }
+    
+    // AGREGAR: Endpoint para obtener productos con stock bajo
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<Product>> getProductsWithLowStock(
+            @RequestParam(defaultValue = "10") int threshold) {
+        List<Product> products = productService.getProductsWithLowStock(threshold);
         return ResponseEntity.ok(products);
     }
 }

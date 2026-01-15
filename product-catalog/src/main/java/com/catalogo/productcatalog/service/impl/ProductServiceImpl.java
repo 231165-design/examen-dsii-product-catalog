@@ -44,7 +44,6 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
     
-    // ¡CORREGIDO! Ahora sí filtra por categoría
     @Override
     public List<Product> getProductsByCategory(Long categoryId) {
         return productRepository.findByCategoryId(categoryId);
@@ -53,5 +52,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> searchProducts(String keyword) {
         return productRepository.findByNameContainingIgnoreCase(keyword);
+    }
+    
+    @Override
+    public List<Product> getProductsWithLowStock(int threshold) {
+        return productRepository.findByStockLessThan(threshold);
     }
 }

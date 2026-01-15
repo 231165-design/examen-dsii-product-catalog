@@ -1,13 +1,398 @@
-<!doctype html>
-<html lang="en">
+# Crea el archivo index.html
+cd "C:\Users\alex2\Downloads\product-catalog\frontend"
+
+# Copia este comando para crear el archivo:
+@'
+<!DOCTYPE html>
+<html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Frontend</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen DSII - Catálogo de Productos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .exam-card { background: white; border-radius: 15px; padding: 30px; margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .badge { font-weight: 600; padding: 8px 15px; }
+        .feature-list { list-style: none; padding-left: 0; }
+        .feature-list li { padding: 8px 0; border-bottom: 1px solid #eee; }
+        .feature-list li:last-child { border-bottom: none; }
+        .product-img { width: 50px; height: 50px; background: #f8f9fa; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+        .filter-btn { cursor: pointer; transition: all 0.3s; }
+        .filter-btn:hover { transform: scale(1.05); }
+    </style>
 </head>
 <body>
-  <app-root></app-root>
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="text-center text-white mb-4">
+            <h1>🎓 EXAMEN PRÁCTICO DSII</h1>
+            <h3>Catálogo Dinámico de Productos</h3>
+            <p class="lead">Implementación completa de Arquitectura N-Capas</p>
+        </div>
+
+        <div class="exam-card">
+            <!-- Sistema Status -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-success">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">✅ BACKEND</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Spring Boot 3.5.9</strong></p>
+                            <p>Puerto: 8080</p>
+                            <p>Estado: <span class="badge bg-success" id="backendStatus">ACTIVO</span></p>
+                            <button class="btn btn-sm btn-outline-success mt-2" onclick="testBackend()">
+                                Probar Conexión
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">🗄️ BASE DE DATOS</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>MySQL 8.0</strong></p>
+                            <p>Tablas: categories, products</p>
+                            <p>Datos: 8 productos</p>
+                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="loadCategories()">
+                                Cargar Categorías
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 border-warning">
+                        <div class="card-header bg-warning">
+                            <h5 class="mb-0">🎨 FRONTEND</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>HTML + Bootstrap 5</strong></p>
+                            <p>Consume API REST</p>
+                            <p>Filtrado dinámico</p>
+                            <button class="btn btn-sm btn-outline-warning mt-2" onclick="loadProducts()">
+                                Cargar Productos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">🔍 Filtrar Productos por Categoría</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2 mb-3" id="categoryFilters">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                    <div class="alert alert-info" id="filterInfo">
+                        Selecciona una categoría para filtrar los productos
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Productos -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">📦 Productos</h5>
+                    <span class="badge bg-light text-dark" id="productCount">Cargando...</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Producto</th>
+                                    <th>Descripción</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Categoría</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTable">
+                                <tr>
+                                    <td colspan="7" class="text-center">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Cargando productos...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arquitectura -->
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">🏗️ Arquitectura N-Capas Implementada</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="p-3 border rounded">
+                                <h6>🏛️ Entities</h6>
+                                <small>Category.java<br>Product.java</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="p-3 border rounded">
+                                <h6>🗄️ Repositories</h6>
+                                <small>CategoryRepository<br>ProductRepository</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="p-3 border rounded">
+                                <h6>⚙️ Services</h6>
+                                <small>CategoryService<br>ProductService</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="p-3 border rounded">
+                                <h6>🌐 Controllers</h6>
+                                <small>CategoryController<br>ProductController</small>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center mt-3">
+                        <p class="mb-1"><strong>✅ EXAMEN PRÁCTICO DSII - COMPLETADO</strong></p>
+                        <p class="text-muted mb-0">
+                            Backend Spring Boot (N-Capas) | Frontend dinámico | Base de datos MySQL
+                        </p>
+                        <div class="mt-3">
+                            <button class="btn btn-success me-2" onclick="showAllProducts()">
+                                Mostrar Todos
+                            </button>
+                            <button class="btn btn-primary" onclick="testAllEndpoints()">
+                                Probar Todos los Endpoints
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados API -->
+        <div class="exam-card mt-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">📡 Resultados de API</h5>
+            </div>
+            <div class="card-body">
+                <pre id="apiResults" class="bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+Esperando pruebas de API...
+                </pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let allProducts = [];
+        let categories = [];
+
+        // Test backend connection
+        async function testBackend() {
+            try {
+                const response = await fetch(`${API_BASE}/categories`);
+                if (response.ok) {
+                    showResult('✅ Backend funcionando correctamente en http://localhost:8080');
+                    document.getElementById('backendStatus').className = 'badge bg-success';
+                    document.getElementById('backendStatus').textContent = 'ACTIVO';
+                }
+            } catch (error) {
+                showResult('❌ Error conectando al backend: ' + error.message);
+                document.getElementById('backendStatus').className = 'badge bg-danger';
+                document.getElementById('backendStatus').textContent = 'ERROR';
+            }
+        }
+
+        // Load categories
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/categories`);
+                categories = await response.json();
+                
+                const filtersDiv = document.getElementById('categoryFilters');
+                filtersDiv.innerHTML = '';
+                
+                // Botón "Todas"
+                const allBtn = document.createElement('button');
+                allBtn.className = 'btn btn-outline-primary filter-btn';
+                allBtn.innerHTML = '📦 Todas';
+                allBtn.onclick = () => showAllProducts();
+                filtersDiv.appendChild(allBtn);
+                
+                // Botones por categoría
+                categories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-outline-success filter-btn';
+                    btn.innerHTML = `${getCategoryIcon(cat.id)} ${cat.name}`;
+                    btn.onclick = () => filterByCategory(cat.id);
+                    filtersDiv.appendChild(btn);
+                });
+                
+                showResult(`✅ Cargadas ${categories.length} categorías`);
+                loadProducts();
+            } catch (error) {
+                showResult('❌ Error cargando categorías: ' + error.message);
+            }
+        }
+
+        // Load all products
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/products`);
+                allProducts = await response.json();
+                displayProducts(allProducts);
+                showResult(`✅ Cargados ${allProducts.length} productos`);
+            } catch (error) {
+                showResult('❌ Error cargando productos: ' + error.message);
+                // Datos de ejemplo si falla
+                allProducts = getSampleProducts();
+                displayProducts(allProducts);
+            }
+        }
+
+        // Display products in table
+        function displayProducts(products) {
+            const tbody = document.getElementById('productsTable');
+            const countSpan = document.getElementById('productCount');
+            
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay productos para mostrar</td></tr>';
+                countSpan.textContent = '0 productos';
+                return;
+            }
+            
+            countSpan.textContent = `${products.length} productos`;
+            
+            let html = '';
+            products.forEach(product => {
+                const stockClass = product.stock > 20 ? 'bg-success' : 
+                                  product.stock > 5 ? 'bg-warning' : 'bg-danger';
+                const statusText = product.stock > 20 ? 'Disponible' : 
+                                  product.stock > 5 ? 'Stock bajo' : 'Agotándose';
+                
+                html += `
+                <tr>
+                    <td>${product.id}</td>
+                    <td><strong>${product.name}</strong></td>
+                    <td><small class="text-muted">${product.description || 'Sin descripción'}</small></td>
+                    <td class="fw-bold text-success">$${product.price?.toFixed(2) || '0.00'}</td>
+                    <td><span class="badge ${stockClass}">${product.stock}</span></td>
+                    <td><span class="badge bg-secondary">${product.category?.name || 'Sin categoría'}</span></td>
+                    <td><span class="badge ${stockClass}">${statusText}</span></td>
+                </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Filter by category
+        async function filterByCategory(categoryId) {
+            try {
+                const response = await fetch(`${API_BASE}/products?categoryId=${categoryId}`);
+                const filteredProducts = await response.json();
+                displayProducts(filteredProducts);
+                
+                const category = categories.find(c => c.id === categoryId);
+                document.getElementById('filterInfo').innerHTML = 
+                    `<strong>Filtrado por:</strong> ${category?.name || 'Categoría'} (${filteredProducts.length} productos)`;
+                
+                showResult(`✅ Productos filtrados por categoría ID: ${categoryId}`);
+            } catch (error) {
+                // Fallback: filtrar localmente
+                const filtered = allProducts.filter(p => p.category?.id === categoryId);
+                displayProducts(filtered);
+                
+                const category = categories.find(c => c.id === categoryId);
+                document.getElementById('filterInfo').innerHTML = 
+                    `<strong>Filtrado por:</strong> ${category?.name || 'Categoría'} (${filtered.length} productos)`;
+            }
+        }
+
+        // Show all products
+        function showAllProducts() {
+            displayProducts(allProducts);
+            document.getElementById('filterInfo').innerHTML = 
+                '<strong>Mostrando todos los productos</strong> (' + allProducts.length + ' productos)';
+            showResult('✅ Mostrando todos los productos');
+        }
+
+        // Test all endpoints
+        async function testAllEndpoints() {
+            showResult('🔍 Probando endpoints...');
+            
+            const endpoints = [
+                { name: 'Categorías', url: '/categories' },
+                { name: 'Todos los productos', url: '/products' },
+                { name: 'Productos categoría 1', url: '/products?categoryId=1' },
+                { name: 'Productos categoría 2', url: '/products?categoryId=2' }
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(API_BASE + endpoint.url);
+                    const data = await response.json();
+                    showResult(`✅ ${endpoint.name}: ${data.length} elementos encontrados`);
+                } catch (error) {
+                    showResult(`❌ ${endpoint.name}: Error - ${error.message}`);
+                }
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            showResult('✅ Todas las pruebas completadas');
+        }
+
+        // Helper functions
+        function getCategoryIcon(categoryId) {
+            const icons = ['📱', '👕', '🏠', '⚽'];
+            return icons[(categoryId - 1) % icons.length] || '📦';
+        }
+
+        function showResult(message) {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.textContent += '\n' + new Date().toLocaleTimeString() + ' - ' + message;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function getSampleProducts() {
+            return [
+                { id: 1, name: 'Smartphone Samsung', description: '128GB, 8GB RAM', price: 999.99, stock: 15, category: { id: 1, name: 'Electrónica' } },
+                { id: 2, name: 'Laptop Lenovo', description: 'Intel i7, 16GB RAM', price: 1499.99, stock: 8, category: { id: 1, name: 'Electrónica' } },
+                { id: 3, name: 'Camiseta Polo', description: 'Algodón pima', price: 34.99, stock: 50, category: { id: 2, name: 'Ropa' } },
+                { id: 4, name: 'Zapatillas Nike', description: 'Running', price: 89.99, stock: 20, category: { id: 2, name: 'Ropa' } },
+                { id: 5, name: 'Sofá Moderno', description: '3 plazas', price: 699.99, stock: 5, category: { id: 3, name: 'Hogar' } },
+                { id: 6, name: 'Mesa de Centro', description: 'Madera de roble', price: 249.99, stock: 12, category: { id: 3, name: 'Hogar' } },
+                { id: 7, name: 'Audífonos Sony', description: 'Cancelación de ruido', price: 199.99, stock: 30, category: { id: 1, name: 'Electrónica' } },
+                { id: 8, name: 'Pelota de Fútbol', description: 'Tamaño 5', price: 29.99, stock: 40, category: { id: 4, name: 'Deportes' } }
+            ];
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            showResult('🚀 Sistema de Catálogo DSII iniciado');
+            testBackend();
+            setTimeout(loadCategories, 1000);
+            setTimeout(loadProducts, 1500);
+        });
+    </script>
 </body>
 </html>
+'@ | Out-File -FilePath "index.html" -Encoding UTF8
+
+# Verifica que se creó
+dir index.html
